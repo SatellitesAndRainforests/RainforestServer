@@ -14,14 +14,14 @@ CREATE TABLE sub_regions (
 );
 
 CREATE TABLE forests (
-	forest_id SERIAL NOT NULL PRIMARY KEY,
+	forest_id UUID NOT NULL PRIMARY KEY,
 	forest_name VARCHAR(100),
 	area DECIMAL,
 	forest_description VARCHAR(400)
 );
 
 CREATE TABLE forests_sub_regions (
-    forest_id SERIAL NOT NULL,
+    forest_id UUID NOT NULL,
     sub_region_name VARCHAR(100) NOT NULL,
     PRIMARY KEY (forest_id, sub_region_name),
     FOREIGN KEY (forest_id) REFERENCES forests
@@ -37,7 +37,7 @@ CREATE TABLE koppen_types (
 );
 
 CREATE TABLE forests_koppen_types (
-    forest_id SERIAL NOT NULL,
+    forest_id UUID NOT NULL,
     koppen_code VARCHAR(10) NOT NULL,
     PRIMARY KEY (forest_id, koppen_code),
     FOREIGN KEY (forest_id) REFERENCES forests
@@ -47,14 +47,14 @@ CREATE TABLE forests_koppen_types (
 );
 
 CREATE TABLE tracks (
-    track_id SERIAL NOT NULL PRIMARY KEY,
+    track_id UUID NOT NULL PRIMARY KEY,
     track_name VARCHAR(100),
     track_description VARCHAR(400)
 );
 
 CREATE TABLE tracks_forests(
-    track_id SERIAL NOT NULL,
-    forest_id SERIAL NOT NULL,
+    track_id UUID NOT NULL,
+    forest_id UUID NOT NULL,
     PRIMARY KEY (track_id, forest_id),
     FOREIGN KEY (forest_id) REFERENCES forests
         ON DELETE CASCADE,
@@ -63,8 +63,8 @@ CREATE TABLE tracks_forests(
 );
 
 CREATE TABLE points (
-    point_id SERIAL NOT NULL PRIMARY KEY,
-    track_id SERIAL NOT NULL,
+    point_id UUID NOT NULL PRIMARY KEY,
+    track_id UUID NOT NULL,
     gps_latitude DECIMAL(10, 7),
     gps_longitude DECIMAL(10, 7),
     point_timestamp TIMESTAMP NOT NULL,
@@ -78,7 +78,7 @@ CREATE TABLE sensors (
 );
 
 CREATE TABLE point_sensor_readings (
-    point_id SERIAL NOT NULL,
+    point_id UUID NOT NULL,
     sensor_name VARCHAR(100) NOT NULL,
     sensor_reading DECIMAL(6,3),
     PRIMARY KEY (point_id, sensor_name),
@@ -102,38 +102,10 @@ CREATE TABLE point_sensor_readings (
 
 
 
-
-
-
-insert into forests (forest_id, forest_name, area, forest_description) values (1, 'Callorhinus ursinus', '676', 'Fumariaceae');
-insert into forests (forest_id, forest_name, area, forest_description) values (2, 'Rhea americana', '927', 'Fabaceae');
-insert into forests (forest_id, forest_name, area, forest_description) values (3, 'Crocodylus niloticus', '712', 'Diapensiaceae');
-insert into forests (forest_id, forest_name, area, forest_description) values (4, 'Motacilla aguimp', '956', 'Asteraceae');
-insert into forests (forest_id, forest_name, area, forest_description) values (5, 'Neotis denhami', '076', 'Parmeliaceae');
-insert into forests (forest_id, forest_name, area, forest_description) values (6, 'Phasianus colchicus', '575', 'Chenopodiaceae');
-insert into forests (forest_id, forest_name, area, forest_description) values (7, 'Libellula quadrimaculata', '419', 'Violaceae');
-insert into forests (forest_id, forest_name, area, forest_description) values (8, 'Procyon lotor', '562', 'Crassulaceae');
-insert into forests (forest_id, forest_name, area, forest_description) values (9, 'Ourebia ourebi', '015', 'Leskeaceae');
-
-
 insert into koppen_types values ('Af','Tropical Rainforest',' Usually found within 10 to 15 degrees latitude of the equator, and has at least 60 mm of rainfall every month.');
 insert into koppen_types values ('Am', 'Tropical Monsoon', ' With a mean tempreture of above 18 C every month, with a wet "Af" season and a "Aw" dry season');
 insert into koppen_types values ('Aw/ As', 'Tropical Savanna','With a "Aw" dry winter some "As" months of less than 60mm precipitation');
 
-
- insert into forests_koppen_types values ( 1, 'Af');
- insert into forests_koppen_types values ( 1, 'Am');
- insert into forests_koppen_types values ( 1, 'Aw/ As');
- insert into forests_koppen_types values ( 2, 'Af');
- insert into forests_koppen_types values ( 2, 'Am');
- insert into forests_koppen_types values ( 3, 'Af');
- insert into forests_koppen_types values ( 4, 'Af');
- insert into forests_koppen_types values ( 5, 'Af');
- insert into forests_koppen_types values ( 5, 'Am');
- insert into forests_koppen_types values ( 6, 'Aw/ As');
- insert into forests_koppen_types values ( 7, 'Am');
- insert into forests_koppen_types values ( 8, 'Am');
- insert into forests_koppen_types values ( 9, 'Am');
 
 
 
@@ -183,41 +155,9 @@ insert into sub_regions values ('Japan', 377975, 'Asia');
 
 
 
-insert into forests_sub_regions values ( 1, 'Colombia');
-insert into forests_sub_regions values ( 1, 'Brazil');
-insert into forests_sub_regions values ( 1, 'Peru');
-insert into forests_sub_regions values ( 1, 'Venezuela');
-insert into forests_sub_regions values ( 1, 'Ecuador');
-insert into forests_sub_regions values ( 1, 'Bolivia');
-insert into forests_sub_regions values ( 1, 'Guyana');
-insert into forests_sub_regions values ( 1, 'Suriname');
-insert into forests_sub_regions values ( 1, 'French Guiana');
-
 
 insert into sensors (sensor_name) values ( 'Humidity');
 insert into sensors (sensor_name) values ( 'Temperature');
-
-
-
-insert into tracks values ( 1, 'Jaguar 1', 'Jaguar by river');
-
-
-
-insert into points values ( 1, 1, 1, 1, '1999-01-08 04:05:07');
-insert into points values ( 2, 1, 2, 2, '1999-01-08 04:05:08');
-insert into points values ( 3, 1, 3, 3, '1999-01-08 04:05:09');
-
-
-insert into point_sensor_readings values ( 1, 'Humidity', 70);
-insert into point_sensor_readings values ( 1, 'Temperature', 25);
-insert into point_sensor_readings values ( 2, 'Humidity', 71);
-insert into point_sensor_readings values ( 2, 'Temperature', 26);
-insert into point_sensor_readings values ( 3, 'Humidity', 72);
-insert into point_sensor_readings values ( 3, 'Temperature', 27);
-
-
-
-
 
 
 

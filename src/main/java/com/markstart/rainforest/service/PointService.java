@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class PointService {
@@ -20,17 +21,15 @@ public class PointService {
     }
 
 
-
     public List<Track> getAllTracks() { return pointDao.selectAllTracks();
     }
 
-    public List<Point> getAllPoints(int track_id) {
+    public List<Point> getAllPoints(UUID track_id) {
         return pointDao.selectAllPoints(track_id);
     }
 
 
-
-    //  public void addPoint(Point point) {
-//       pointDao.insertPointToDB(point);
-//    }
+  public void addPoint(Point point) {
+       pointDao.insertPointToDB(point);
+    }
 }

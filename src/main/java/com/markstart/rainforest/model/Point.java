@@ -3,11 +3,12 @@ package com.markstart.rainforest.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.sql.Timestamp;
+import java.util.UUID;
 
 public class Point {
 
-    private int point_id;
-    private int track_id;
+    private UUID point_id;
+    private UUID track_id;
     private float gps_latitude;
     private float gps_longitude;
     private Timestamp point_timestamp;
@@ -15,7 +16,13 @@ public class Point {
     private float point_temperature;
 
 
-    public Point(int point_id, int track_id, float gps_latitude, float gps_longitude, Timestamp point_timestamp, float point_humidity, float point_temperature) {
+    public Point(@JsonProperty("point_id") UUID point_id,
+                 @JsonProperty("track_id") UUID track_id,
+                 @JsonProperty("gps_latitude") float gps_latitude,
+                 @JsonProperty("gps_longitude") float gps_longitude,
+                 @JsonProperty("point_timestamp") Timestamp point_timestamp,
+                 @JsonProperty("point_humidity") float point_humidity,
+                 @JsonProperty("point_temperature") float point_temperature) {
         this.point_id = point_id;
         this.track_id = track_id;
         this.gps_latitude = gps_latitude;
@@ -25,19 +32,19 @@ public class Point {
         this.point_temperature = point_temperature;
     }
 
-    public int getPoint_id() {
+    public UUID getPoint_id() {
         return point_id;
     }
 
-    public void setPoint_id(int point_id) {
+    public void setPoint_id(UUID point_id) {
         this.point_id = point_id;
     }
 
-    public int getTrack_id() {
+    public UUID getTrack_id() {
         return track_id;
     }
 
-    public void setTrack_id(int track_id) {
+    public void setTrack_id(UUID track_id) {
         this.track_id = track_id;
     }
 

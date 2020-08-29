@@ -2,13 +2,15 @@ package com.markstart.rainforest.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.UUID;
+
 public class Track {
 
-    private int track_id;
+    private UUID track_id;
     private String track_name;
     private String track_description;
 
-    public Track(@JsonProperty("track_id") int track_id, String track_name, String track_description) {
+    public Track(@JsonProperty("track_id") UUID track_id, String track_name, String track_description) {
 
         this.track_id = track_id;
         this.track_name = track_name;
@@ -17,11 +19,11 @@ public class Track {
 
 
 
-    public int getTrack_id() {
+    public UUID getTrack_id() {
         return track_id;
     }
 
-    public void setTrack_id(int track_id) {
+    public void setTrack_id(UUID track_id) {
         this.track_id = track_id;
     }
 
