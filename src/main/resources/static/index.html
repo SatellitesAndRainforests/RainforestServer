@@ -70,6 +70,18 @@
       }
 
 
+    function displayPointsOnMap(json) {
+
+      console.log(json[0]);
+
+      var coords = [ json[0].gps_latitude , json[0].gps_longitude];
+      map.panTo(coords);
+
+      var marker = WE.marker(coords).addTo(map);
+      marker.bindPopup(json[0]).openPopup();
+
+
+    }
 
 
 
@@ -85,14 +97,17 @@ const url = "http://localhost:8000/tracks";
         }).then(function(response) {
             return response.json();
         }).then( function (obj ) {
-            console.log(obj);
             displayTrackList(obj);
+            displayTracksOnMap(obj);
           }).catch( function(err) {
             console.log("error" + err);
         });
     }
 
     function getPointsData( trackId ) {
+
+
+            document.getElementById("getdata").disabled = true;
 
       removeElement(trackList);  // ? why does this work ?
 
@@ -101,11 +116,17 @@ const url = "http://localhost:8000/tracks";
         }).then(function(response) {
             return response.json();
         }).then( function (obj) {
-            console.log(obj);
             displayPointsList(obj);
+            displayPointsOnMap(obj);
           }).catch( function(err) {
             console.log("error" + err);
         });
+
+    }
+
+
+
+    function displayTracksOnMap(json) {
 
     }
 
@@ -120,7 +141,7 @@ const url = "http://localhost:8000/tracks";
       i;
 
       listContainer.setAttribute("id", "pointList");
-      listReset.innerHTML = '<input type="button" value="reset list" id="resetLink" onclick="removeElement(pointList)">';
+      listReset.innerHTML = '<input type="button" value="reset list" id="resetLink" onclick="removeElement(pointList); reset()">';
 
 
       document.getElementById('trackdata').appendChild(listContainer);
@@ -149,7 +170,7 @@ const url = "http://localhost:8000/tracks";
       i;
 
       listContainer.setAttribute("id", "trackList");
-      listReset.innerHTML = '<input type="button" value="reset list" id="resetLink" onclick="removeElement(trackList)">';
+      listReset.innerHTML = '<input type="button" value="reset list" id="resetLink" onclick="removeElement(trackList); reset()">';
 
       document.getElementById('trackdata').appendChild(listContainer);
       listContainer.appendChild(listElement);
@@ -169,11 +190,11 @@ const url = "http://localhost:8000/tracks";
 
     function removeElement(elementID) {
       document.getElementById('trackdata').removeChild(elementID);
-      document.getElementById("getdata").disabled = false;
-
-
     }
 
+    function reset(){
+              document.getElementById("getdata").disabled = false;
+    }
 
     function goToPoint(pointId) {
         console.log(pointId);
@@ -223,7 +244,7 @@ const url = "http://localhost:8000/tracks";
 <div id="map"></div>
 <div id="buttons">
 
-    <input type="button" value="Zoom to level 9 !!!!!!!!!!!" onclick="setZoom(2);"><br>
+    <input type="button" value="Zoom to level 2 " onclick="setZoom(2);"><br>
     <input type="button" value="Fly to Iceland" onclick="panTo([65, -19]);"><br>
     <input type="button" value="Add some markers & polygons" id="addmarkers" onclick="addSomeMarkers()"><br>
     <input type="button" value="Get Tracks" id="getdata" onclick="getTrackData()"><br>
