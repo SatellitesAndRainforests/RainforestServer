@@ -21,6 +21,12 @@ public interface PointDao {
       float point_humidity = point.getPoint_humidity();
       float point_temperature = point.getPoint_temperature();
       insertPointToDB(point_id, track_id, gps_latitude, gps_longitude, point_timestamp, point_humidity, point_temperature);
+
+      System.out.println("INSERT INTO tracks (track_id) VALUES ('" + track_id + "');");
+      System.out.println("INSERT INTO points VALUES ('"+point_id+"','"+track_id+"',"+gps_latitude+","+gps_longitude+",'"+point_timestamp+"');" );
+      System.out.println("INSERT INTO point_sensor_readings VALUES ('"+point_id+"', 'Humidity', "+point_humidity+");");
+      System.out.println("INSERT INTO point_sensor_readings VALUES ('"+point_id+"', 'Temperature', "+point_temperature+");" );
+
    }
 
 

@@ -64,26 +64,19 @@ public class PointDataAccessService implements PointDao {
         return jdbcTemplate.queryForObject(sql, Float.class);
     }
 
-    private boolean trackInTracks(UUID track_id) {
-        final String sql = "SELECT track_id FROM tracks WHERE track_id = '" + track_id + "'";
-        boolean isThere = false;
-        try {
-            UUID trackInTable = jdbcTemplate.queryForObject(sql, UUID.class);
-            isThere = true;
-        } catch ( Exception e) {
-        }
-        return ( isThere );
+    private boolean trackInDB(UUID track_id) {
+        final String sql = "SELECT EXISTS( SELECT 1 FROM tracks WHERE track_id = '" + track_id + "')";
+        boolean exists = jdbcTemplate.queryForObject(sql, Boolean.class);
+        System.out.println(exists);
+
+        return ( exists );
     }
 
-    private boolean pointInPoints (UUID point_id ) {
-        final String sql = "SELECT point_id FROM points WHERE point_id = '" + point_id + "'";
-        boolean isThere = false;
-        try {
-            UUID pointInTable = jdbcTemplate.queryForObject(sql, UUID.class);
-            isThere = true;
-        } catch (Exception e ) {
-        }
-        return ( isThere );
+    private boolean pointInDB(UUID point_id ) {
+        final String sql = "SELECT EXISTS ( SELECT 1 FROM points WHERE point_id = '" + point_id + "')";
+        boolean exists = jdbcTemplate.queryForObject(sql, Boolean.class);
+
+        return ( exists );
     }
 
     @Override
@@ -92,37 +85,44 @@ public class PointDataAccessService implements PointDao {
         String temperature = "Temperature";
         boolean wasAdded = false;
 
-        if (!trackInTracks(track_id)) {
-            jdbcTemplate.update(
-                    "INSERT INTO tracks (track_id) VALUES ( ? )",
-                    track_id
-            );
+        try {
+            if (trackInDB(track_id) == false) {
+                jdbcTemplate.update(
+                        "INSERT INTO tracks (track_id) VALUES ( ? )",
+                        track_id
+                );
+            }
+        } catch (org.springframework.dao.DuplicateKeyException e) {
+            System.out.println("caught dulpicate track key ");
         }
 
-        if (!pointInPoints(point_id)) {
-            jdbcTemplate.update(
-                    "INSERT INTO points VALUES ( ?, ?, ?, ?, ?)",
-                    point_id, track_id, gps_latitude, gps_longitude, point_timestamp
-            );
+        try {
+            if (pointInDB(point_id) == false) {
+                jdbcTemplate.update(
+                        "INSERT INTO points VALUES ( ?, ?, ?, ?, ?)",
+                        point_id, track_id, gps_latitude, gps_longitude, point_timestamp
+                );
 
-            jdbcTemplate.update(
+                jdbcTemplate.update(
 
-                    "INSERT INTO point_sensor_readings VALUES ( ?, ?, ?)",
-                    point_id, humidity, point_humidity
-            );
+                        "INSERT INTO point_sensor_readings VALUES ( ?, ?, ?)",
+                        point_id, humidity, point_humidity
+                );
 
-            jdbcTemplate.update(
-                    "INSERT INTO point_sensor_readings VALUES ( ?, ?, ?)",
-                    point_id, temperature, point_temperature
-            );
+                jdbcTemplate.update(
+                        "INSERT INTO point_sensor_readings VALUES ( ?, ?, ?)",
+                        point_id, temperature, point_temperature
+                );
 
-            wasAdded = true;
+                wasAdded = true;
 
+            }
+
+        } catch (org.springframework.dao.DuplicateKeyException e) {
+            System.out.println("caught dulpicate point key ");
         }
 
     }
-
-
 }
 
 

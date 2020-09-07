@@ -1,23 +1,242 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE HTML>
+<html>
 <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="robots" content="index, all"/>
+    <script src="http://www.webglearth.com/v2/api.js"></script>
+    <title>Rainforest Data Visulization with WebGL</title>
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
 
-    <title>Hello, world!</title>
+    <script>
+
+
+//    const proxyurl = "https://cors-anywhere.herokuapp.com/";
+//    url = "http://markstart.duckdns.org:8000/tracks";
+
+
+      var map;
+      function init() {
+        map = WE.map('map', {
+          center: [36.057944835, -112.18688965],
+          zoom: 3,
+          dragging: true,
+          scrollWheelZoom: true
+        });
+
+        var baselayer = WE.tileLayer('https://webglearth.github.io/webglearth2-offline/{z}/{x}/{y}.jpg', {
+          tileSize: 256,
+          bounds: [[-85, -180], [85, 180]],
+          minZoom: 0,
+          maxZoom: 16,
+          attribution: 'WebGLEarth example',
+          tms: true
+        }).addTo(map);
+      }
+
+      function addSomeMarkers() {
+        document.getElementById('addmarkers').disabled = true;
+        map.setView([51.505, 0], 5);
+        var marker = WE.marker([51.5, -0.09]).addTo(map);
+        marker.bindPopup("<b>Hello world!</b><br>I am a popup.<br /><span style='font-size:10px;color:#999'>Tip: Another popup is hidden in Cairo..</span>", {maxWidth: 150, closeButton: true}).openPopup();
+        var marker2 = WE.marker([30.058056, 31.228889]).addTo(map);
+        marker2.bindPopup("<b>Cairo</b><br>Yay, you found me!<br />Here, enjoy another polygon..", {maxWidth: 120, closeButton: false});
+        var polygonA = WE.polygon([[50, 1], [51, 0.5], [50.5, 2.5]]).addTo(map);
+        var polygonB = WE.polygon([[50, 3], [51, 2.5], [50.5, 4.5]], {
+          color: '#ff0',
+          opacity: 1,
+          fillColor: '#f00',
+          fillOpacity: 0.1,
+          weight: 2
+        }).addTo(map);
+
+        var anotherPolygon = function(e) {
+          WE.polygon([[30, 30], [29, 31], [30, 32], [32, 32], [31, 30]], {
+            color: '#000',
+            opacity: 1,
+            fillColor: '#0f0',
+            fillOpacity: 0.7,
+            weight: 2
+          }).addTo(map);
+          marker2.off('click', anotherPolygon);
+        };
+        marker2.on('click', anotherPolygon);
+      }
+
+      function setZoom(zoom) {
+        map.setZoom(zoom);
+      }
+
+      function panTo(coords) {
+        map.panTo(coords);
+      }
+
+
+
+
+
+const url = "http://localhost:8000/tracks";
+
+
+    function getTrackData() {
+
+      document.getElementById("getdata").disabled = true;
+
+        fetch( url , {
+          method: 'get'
+        }).then(function(response) {
+            return response.json();
+        }).then( function (obj ) {
+            console.log(obj);
+            displayTrackList(obj);
+          }).catch( function(err) {
+            console.log("error" + err);
+        });
+    }
+
+    function getPointsData( trackId ) {
+
+      removeElement(trackList);  // ? why does this work ?
+
+        fetch( url + "/" + trackId , {
+          method: 'get'
+        }).then(function(response) {
+            return response.json();
+        }).then( function (obj) {
+            console.log(obj);
+            displayPointsList(obj);
+          }).catch( function(err) {
+            console.log("error" + err);
+        });
+
+    }
+
+    function displayPointsList( jsonPointData ) {
+
+      var listContainer = document.createElement('div'),
+      listElement = document.createElement('ul'),
+      listReset = document.createElement('p'),
+      numberOfListItems = jsonPointData.length,
+      listItem,
+      PointId,
+      i;
+
+      listContainer.setAttribute("id", "pointList");
+      listReset.innerHTML = '<input type="button" value="reset list" id="resetLink" onclick="removeElement(pointList)">';
+
+
+      document.getElementById('trackdata').appendChild(listContainer);
+      listContainer.appendChild(listElement);
+      listContainer.appendChild(listReset);
+
+      for (i=0; i<numberOfListItems; i++) {
+        pointId = jsonPointData[i].point_id; 
+        listItem = document.createElement('li');
+        listItem.innerHTML = '<input type="button" value="' + pointId + '" class="trackListButtons" onclick="goToPoint(value)"><br>';
+        listElement.appendChild(listItem);
+      }
+
+    }
+
+
+
+    function displayTrackList( jsonTrackData ) {
+
+      var listContainer = document.createElement('div'),
+      listElement = document.createElement('ul'),
+      listReset = document.createElement('p'),
+      numberOfListItems = jsonTrackData.length,
+      listItem,
+      trackId,
+      i;
+
+      listContainer.setAttribute("id", "trackList");
+      listReset.innerHTML = '<input type="button" value="reset list" id="resetLink" onclick="removeElement(trackList)">';
+
+      document.getElementById('trackdata').appendChild(listContainer);
+      listContainer.appendChild(listElement);
+      listContainer.appendChild(listReset);
+
+      for (i=0; i<numberOfListItems; i++) {
+       trackId = jsonTrackData[i].track_id; 
+       listItem = document.createElement('li');
+       listItem.innerHTML = '<input type="button" value="' + trackId + '" class="trackListButtons" onclick="getPointsData(value)"><br>';
+       listElement.appendChild(listItem);
+      }
+
+
+    }
+
+
+
+    function removeElement(elementID) {
+      document.getElementById('trackdata').removeChild(elementID);
+      document.getElementById("getdata").disabled = false;
+
+
+    }
+
+
+    function goToPoint(pointId) {
+        console.log(pointId);
+    }
+
+
+
+
+
+    </script>
+    <style>
+
+      html, body{
+        padding: 0;
+        margin: 0;
+        background-color: black;
+        color: white;
+      }
+      #map{
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: #000;
+        position: absolute !important;
+      }
+      #buttons {
+        position: absolute;
+        top:10px;
+        left: 10px;
+      }
+      #trackdata{
+        position: absolute;
+        background-color:lightgrey;
+        color: black;
+        padding: 5px;
+      }
+
+
+
+    </style>
 </head>
-<body>
 
-<img src="jungle.jpg" alt="rainforest" width="100%" height="100%">
 
-<!-- Optional JavaScript -->
-<!-- jQuery first, then Popper.js, then Bootstrap JS -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+<body onload="init()">
+
+<div id="map"></div>
+<div id="buttons">
+
+    <input type="button" value="Zoom to level 9 !!!!!!!!!!!" onclick="setZoom(2);"><br>
+    <input type="button" value="Fly to Iceland" onclick="panTo([65, -19]);"><br>
+    <input type="button" value="Add some markers & polygons" id="addmarkers" onclick="addSomeMarkers()"><br>
+    <input type="button" value="Get Tracks" id="getdata" onclick="getTrackData()"><br>
+
+<div id="trackdata">
+    Track Data Goes Here:
+</div>
+</div>
+
 </body>
+
+
 </html>
+
+
+© Copyright 2014-2018 Klokan Technologies GmbH
