@@ -1,65 +1,146 @@
 <!DOCTYPE HTML>
 <html>
+
 <head>
-    <meta name="robots" content="index, all"/>
-    <script src="http://www.webglearth.com/v2/api.js"></script>
-    <title>Rainforest Data Visulization with WebGL</title>
+  <meta name="Rainforest Data Visulization with WebGLEarth" content="index, all" />
+  <script src="http://www.webglearth.com/v2/api.js"></script>
+  <title>Rainforest Data Visulization with WebGLEarth</title>
 
 
-    <script>
+  <script>
 
 
-//    const proxyurl = "https://cors-anywhere.herokuapp.com/";
-//    url = "http://markstart.duckdns.org:8000/tracks";
+    var map;
+    var animated = true;
+
+    const url = "http://localhost:8000/tracks";
 
 
-      var map;
-      function init() {
-        map = WE.map('map', {
-          center: [36.057944835, -112.18688965],
-          zoom: 3,
-          dragging: true,
-          scrollWheelZoom: true
-        });
+    function init() {
+      map = WE.map('map', {
+        center: [-13, -130],
+        zoom: 2,
+        unconstrainedRotation: true,
+        sky: true,
+        dragging: true,
+        scrollWheelZoom: true
+      });
 
-        var baselayer = WE.tileLayer('https://webglearth.github.io/webglearth2-offline/{z}/{x}/{y}.jpg', {
+      var baselayer = WE.tileLayer('https://webglearth.github.io/webglearth2-offline/{z}/{x}/{y}.jpg', {
+        tileSize: 256,
+        bounds: [[-85, -180], [85, 180]],
+        minZoom: 0,
+        maxZoom: 16,
+        attribution: 'WebGLEarth example',
+        tms: true
+      }).addTo(map);
+
+
+
+
+      performAnimation();
+      satelliteMap();
+
+    }
+
+    var before = null;
+    var dontAllowTimeElapse;
+
+    // Animation from tutorial and  thanks to    https://stackoverflow.com/questions/44347598/webgl-earth-restart-animation-at-current-location
+    function performAnimation() {
+
+      toggleFlights(true);
+
+      requestAnimationFrame(function animate(now) {
+        if (animated) {
+          var c = map.getPosition();
+          var elapsed = before ? now - before : 0;
+
+          if (dontAllowTimeElapse) {
+            elapsed = 0;
+          }
+
+          before = now;
+          map.setCenter([c[0], c[1] + 0.1 * (elapsed / 30)]);
+          dontAllowTimeElapse = false;
+          requestAnimationFrame(animate);
+        }
+      });
+    }
+
+
+    function pauseAnimation() {
+      if (animated) {
+        animated = false;
+        document.getElementById("animationButton").value = "Start Animation";
+        toggleFlights(false);
+
+      } else {
+        dontAllowTimeElapse = true;
+        animated = true;
+        performAnimation();
+        document.getElementById("animationButton").value = "Pause Animation";
+
+      }
+    }
+
+    function toggleFlights(status) {
+      document.getElementById("hawaiiButton").disabled = status;
+      document.getElementById("otherSideButton").disabled = status;
+    }
+
+
+
+
+
+
+
+
+    function flyToOtherSide() {
+      panTo(antipode(map.getCenter()));
+    }
+
+    // taken from webGL tutorial
+    function antipode(coord) {
+      return [-1 * coord[0], coord[1] - 180];
+    }
+
+
+
+
+    function satelliteMap() {
+
+        WE.tileLayer('https://webglearth.github.io/webglearth2-offline/{z}/{x}/{y}.jpg', {
           tileSize: 256,
           bounds: [[-85, -180], [85, 180]],
           minZoom: 0,
           maxZoom: 16,
-          attribution: 'WebGLEarth example',
+          attribution: 'WebGLEarth Satellite',
           tms: true
         }).addTo(map);
-      }
 
-      function addSomeMarkers() {
-        document.getElementById('addmarkers').disabled = true;
-        map.setView([51.505, 0], 5);
-        var marker = WE.marker([51.5, -0.09]).addTo(map);
-        marker.bindPopup("<b>Hello world!</b><br>I am a popup.<br /><span style='font-size:10px;color:#999'>Tip: Another popup is hidden in Cairo..</span>", {maxWidth: 150, closeButton: true}).openPopup();
-        var marker2 = WE.marker([30.058056, 31.228889]).addTo(map);
-        marker2.bindPopup("<b>Cairo</b><br>Yay, you found me!<br />Here, enjoy another polygon..", {maxWidth: 120, closeButton: false});
-        var polygonA = WE.polygon([[50, 1], [51, 0.5], [50.5, 2.5]]).addTo(map);
-        var polygonB = WE.polygon([[50, 3], [51, 2.5], [50.5, 4.5]], {
-          color: '#ff0',
-          opacity: 1,
-          fillColor: '#f00',
-          fillOpacity: 0.1,
-          weight: 2
-        }).addTo(map);
+        document.getElementById("satelliteButton").disabled = true;
+        document.getElementById("streetButton").disabled = false;
 
-        var anotherPolygon = function(e) {
-          WE.polygon([[30, 30], [29, 31], [30, 32], [32, 32], [31, 30]], {
-            color: '#000',
-            opacity: 1,
-            fillColor: '#0f0',
-            fillOpacity: 0.7,
-            weight: 2
+    }
+
+
+      function streetMap() {
+
+          WE.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
           }).addTo(map);
-          marker2.off('click', anotherPolygon);
-        };
-        marker2.on('click', anotherPolygon);
+
+        document.getElementById("satelliteButton").disabled = false;
+        document.getElementById("streetButton").disabled = true;
+
       }
+
+      
+
+
+
+
 
       function setZoom(zoom) {
         map.setZoom(zoom);
@@ -69,195 +150,420 @@
         map.panTo(coords);
       }
 
+      function zoomInOne() {
+        map.zoomIn();
+      }
 
-    function displayPointsOnMap(json) {
-
-      console.log(json[0]);
-
-      var coords = [ json[0].gps_latitude , json[0].gps_longitude];
-      map.panTo(coords);
-
-      var marker = WE.marker(coords).addTo(map);
-      marker.bindPopup(json[0]).openPopup();
-
-
-    }
+      function zoomOutOne() {
+        map.zoomOut();
+      }
 
 
 
-const url = "http://localhost:8000/tracks";
 
 
-    function getTrackData() {
 
-      document.getElementById("getdata").disabled = true;
 
-        fetch( url , {
+
+
+      function drawLines(json) {
+
+        var pollygonArray = new Array();
+
+        for (var i = 0; i < json.length - 1; i++) {
+
+          var pointArray = [2];
+          pointArray[0] = json[i].gps_latitude;
+          pointArray[1] = json[i].gps_longitude;
+          pollygonArray.push(pointArray);
+
+        }
+
+        var line = WE.polygon(pollygonArray, {
+          color: '#03f',
+          opacity: 1,
+          fillColor: '#ff0',
+          fillOpacity: 0.00001,
+          weight: 2
+        }).addTo(map);
+
+
+      }
+
+
+
+
+
+
+      function getTrackData() {
+
+        document.getElementById("getdata").disabled = true;
+
+        fetch(url, {
           method: 'get'
-        }).then(function(response) {
-            return response.json();
-        }).then( function (obj ) {
-            displayTrackList(obj);
-            displayTracksOnMap(obj);
-          }).catch( function(err) {
-            console.log("error" + err);
+        }).then(function (response) {
+          return response.json();
+        }).then(function (obj) {
+          displayTrackList(obj);
+        }).catch(function (err) {
+          console.log("error" + err);
         });
-    }
-
-    function getPointsData( trackId ) {
+      }
 
 
-            document.getElementById("getdata").disabled = true;
 
-      removeElement(trackList);  // ? why does this work ?
+      function displayTrackList(jsonTrackData) {
 
-        fetch( url + "/" + trackId , {
+        var listContainer = document.createElement('div'),
+          listElement = document.createElement('ul'),
+          listReset = document.createElement('p'),
+          numberOfListItems = jsonTrackData.length,
+          listItem,
+          trackId,
+          i;
+
+        listContainer.setAttribute("id", "trackList");
+        listReset.innerHTML = '<input type="button" value="Reset List" id="resetButton" class="toggleButton" onclick="removeElement(trackList); reset()">';
+
+        document.getElementById('trackdata').appendChild(listContainer);
+        listContainer.appendChild(listElement);
+        listContainer.appendChild(listReset);
+
+        for (i = 0; i < numberOfListItems; i++) {
+          trackId = jsonTrackData[i].track_id;
+          listItem = document.createElement('li');
+          listItem.innerHTML = '<input type="button" value="' + trackId + '" class="toggleButton" onclick="getPointsData(value)"><br>';
+          listElement.appendChild(listItem);
+        }
+
+
+      }
+
+
+      function getPointsData(trackId) {
+
+        document.getElementById("getdata").disabled = true;
+
+        removeElement(trackList);  // ? why does this work ?
+
+        fetch(url + "/" + trackId, {
           method: 'get'
-        }).then(function(response) {
-            return response.json();
-        }).then( function (obj) {
-            displayPointsList(obj);
-            displayPointsOnMap(obj);
-          }).catch( function(err) {
-            console.log("error" + err);
+        }).then(function (response) {
+          return response.json();
+        }).then(function (obj) {
+          displayPointsList(obj);
+          displayPointsOnMap(obj);
+        }).catch(function (err) {
+          console.log("error" + err);
         });
 
-    }
-
-
-
-    function displayTracksOnMap(json) {
-
-    }
-
-    function displayPointsList( jsonPointData ) {
-
-      var listContainer = document.createElement('div'),
-      listElement = document.createElement('ul'),
-      listReset = document.createElement('p'),
-      numberOfListItems = jsonPointData.length,
-      listItem,
-      PointId,
-      i;
-
-      listContainer.setAttribute("id", "pointList");
-      listReset.innerHTML = '<input type="button" value="reset list" id="resetLink" onclick="removeElement(pointList); reset()">';
-
-
-      document.getElementById('trackdata').appendChild(listContainer);
-      listContainer.appendChild(listElement);
-      listContainer.appendChild(listReset);
-
-      for (i=0; i<numberOfListItems; i++) {
-        pointId = jsonPointData[i].point_id; 
-        listItem = document.createElement('li');
-        listItem.innerHTML = '<input type="button" value="' + pointId + '" class="trackListButtons" onclick="goToPoint(value)"><br>';
-        listElement.appendChild(listItem);
-      }
-
-    }
-
-
-
-    function displayTrackList( jsonTrackData ) {
-
-      var listContainer = document.createElement('div'),
-      listElement = document.createElement('ul'),
-      listReset = document.createElement('p'),
-      numberOfListItems = jsonTrackData.length,
-      listItem,
-      trackId,
-      i;
-
-      listContainer.setAttribute("id", "trackList");
-      listReset.innerHTML = '<input type="button" value="reset list" id="resetLink" onclick="removeElement(trackList); reset()">';
-
-      document.getElementById('trackdata').appendChild(listContainer);
-      listContainer.appendChild(listElement);
-      listContainer.appendChild(listReset);
-
-      for (i=0; i<numberOfListItems; i++) {
-       trackId = jsonTrackData[i].track_id; 
-       listItem = document.createElement('li');
-       listItem.innerHTML = '<input type="button" value="' + trackId + '" class="trackListButtons" onclick="getPointsData(value)"><br>';
-       listElement.appendChild(listItem);
       }
 
 
-    }
+      var trackJson;
+
+      function displayPointsList(jsonPointData) {
+
+        var listContainer = document.createElement('div'),
+          listElement = document.createElement('ul'),
+          listReset = document.createElement('p'),
+          numberOfListItems = jsonPointData.length,
+          listItem,
+          PointId,
+          i;
+
+          trackJson = jsonPointData;
 
 
-
-    function removeElement(elementID) {
-      document.getElementById('trackdata').removeChild(elementID);
-    }
-
-    function reset(){
-              document.getElementById("getdata").disabled = false;
-    }
-
-    function goToPoint(pointId) {
-        console.log(pointId);
-    }
+        listContainer.setAttribute("id", "pointList");
+        listReset.innerHTML = '<input type="button" value="Reset List" id="resetButton" class="toggleButton" onclick="removeElement(pointList); reset()">';
 
 
+        document.getElementById('trackdata').appendChild(listContainer);
+        listContainer.appendChild(listElement);
+        listContainer.appendChild(listReset);
 
+        for (i = 0; i < numberOfListItems; i++) {
 
+          jsonItem = jsonPointData[i];
 
-    </script>
-    <style>
+          pointId = jsonItem.point_id;
+          listItem = document.createElement('li');
+          listItem.innerHTML = '<input type="button" value="Point: ' + [i+1] + '" class="toggleButton" onclick="goToPoint(value)" >';
 
-      html, body{
-        padding: 0;
-        margin: 0;
-        background-color: black;
-        color: white;
+          listElement.appendChild(listItem);
+
+        }
+
       }
-      #map{
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        background-color: #000;
-        position: absolute !important;
-      }
-      #buttons {
-        position: absolute;
-        top:10px;
-        left: 10px;
-      }
-      #trackdata{
-        position: absolute;
-        background-color:lightgrey;
-        color: black;
-        padding: 5px;
+
+
+      function goToPoint(buttonValue) {
+        if (animated) {
+          pauseAnimation();
+        }
+        var pointID = buttonValue.substr(buttonValue.length - 1) - 1;
+
+        panTo( [ trackJson[pointID].gps_latitude, trackJson[pointID].gps_longitude ] );
       }
 
 
 
-    </style>
+
+      function displayPointsOnMap(json) {
+
+
+        panTo([json[0].gps_latitude, json[0].gps_longitude]);
+
+
+        for (var i = 0; i < json.length; i++) {
+
+          var location = [json[i].gps_latitude, json[i].gps_longitude];
+
+          var marker = WE.marker(location).addTo(map);
+          var item = json[i];
+          var options = { maxWidth: 120, maxHeight: 100, closeButton: true };
+          var pointDateTime = json[i].point_timestamp.split('T');
+          var instructions;
+
+          if (i == 0) {
+
+            marker.bindPopup("<span style='font-size:10px;color:black'>" +
+              "<b>Start: </b>Click on other points for their point data.<br> Try zooming in if the points are close together.<br><br>" +
+              "<b>Point: " + [i + 1] + "</b>" +
+              "<br>Date : " + pointDateTime[0] +
+              "<br>Time : " + pointDateTime[1].split('.', '1') +
+              "<br>Latitude: " + item.gps_latitude +
+              "<br>Longitude: " + item.gps_longitude +
+              "<br> Humidity: " + item.point_humidity +
+              "<br>Temperature: " + item.point_temperature +
+              "</span>", options).openPopup();
+
+          } else {
+
+            marker.bindPopup("<span style='font-size:10px;color:black'>" +
+              "<b>Point: " + [i + 1] + "</b>" +
+              "<br>Date : " + pointDateTime[0] +
+              "<br>Time : " + pointDateTime[1].split('.', '1') +
+              "<br>Latitude: " + item.gps_latitude +
+              "<br>Longitude: " + item.gps_longitude +
+              "<br> Humidity: " + item.point_humidity +
+              "<br>Temperature: " + item.point_temperature +
+              "</span>", options);
+
+          }
+
+        }
+
+        drawLines(json);
+
+      }
+
+
+
+
+
+
+
+
+      function removeElement(elementID) {
+        document.getElementById('trackdata').removeChild(elementID);
+      }
+
+      function reset() {
+        document.getElementById("getdata").disabled = false;
+      }
+
+
+
+
+
+
+
+  </script>
+  <style>
+
+    html,
+    body {
+      padding: 0;
+      margin: 0;
+      background-color: black;
+      color: white;
+    }
+
+    #map {
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      background-color: #000;
+      position: absolute !important;
+    }
+
+
+
+    #getdata {
+
+      border: 1px solid #003f45;
+      border-radius: 5px;
+      background-color:transparent;
+
+    }
+
+
+    #trackDataContainer {
+
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 100000;
+      overflow-y: auto;
+    
+    }
+
+
+
+    #trackdata {
+      text-align: left;
+      background-color: transparent;
+      color: powderblue;
+      border: 1px solid transparent;
+      outline: none;
+      margin: 1px;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+    #mapSurfaceButtons {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 100000 ;
+    }
+
+    .surfaceButton {
+
+      width: 100%; 
+      background-color: transparent;
+      color: #003f45;
+      margin: 1px;
+      border: none;
+    
+    }
+
+    .surfaceButton:disabled {
+      border: none;
+      border: 1px solid #003f45;
+      border-radius: 5px;
+      color: powderblue;
+    }
+
+    .surfaceButton:hover {
+      color: #028996;
+    
+    }
+
+
+
+    #animationButtons {
+      position: absolute;
+      bottom: 15px;
+      left: 1px;
+      z-index: 100000;
+    }
+
+    .toggleButton {
+      text-align: left;
+      background-color: transparent;
+      color: powderblue;
+      border: 1px solid transparent;
+      outline: none;
+      margin: 1px;
+    }
+
+    .toggleButton:disabled {
+      color: #003f45;
+    }
+
+    .toggleButton:hover {
+      border: 1px solid #003f45;
+      border-radius: 5px;
+    }
+
+
+
+
+    #zoomButtons {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      z-index: 100000;
+    }
+
+    .transparentButton {
+      color: white;
+      border: none;
+      background-color: transparent;
+      border: 1px solid transparent;
+      outline: none;
+    }
+
+    .transparentButton:hover {
+      border: 1px solid #003f45;
+      border-radius: 5px;
+    }
+
+    #animationButton {
+      border: 1px solid #003f45;
+      border-radius: 5px;
+    }
+
+
+  </style>
+
 </head>
 
 
 <body onload="init()">
 
-<div id="map"></div>
-<div id="buttons">
+  <div id="map"></div>
 
-    <input type="button" value="Zoom to level 2 " onclick="setZoom(2);"><br>
-    <input type="button" value="Fly to Iceland" onclick="panTo([65, -19]);"><br>
-    <input type="button" value="Add some markers & polygons" id="addmarkers" onclick="addSomeMarkers()"><br>
-    <input type="button" value="Get Tracks" id="getdata" onclick="getTrackData()"><br>
+  <div id="zoomButtons">
+    <input type="button" class="transparentButton" value="+" onclick="zoomInOne()"><br>
+    <input type="button" class="transparentButton" value="–" onclick="zoomOutOne()"><br>
+  </div>
 
-<div id="trackdata">
-    Track Data Goes Here:
-</div>
-</div>
+  <div id="animationButtons">
+    <input type="button" class="toggleButton" value="Pause Animation" id="animationButton"
+      onclick="pauseAnimation()"><br>
+    <input type="button" class="toggleButton" value="Fly to The Hawaii" id="hawaiiButton"
+      onclick="panTo([19.70, -155.55]);"><br>
+    <input type="button" class="toggleButton" value="Fly to the other side of the world" id="otherSideButton"
+      onclick="flyToOtherSide()"><br>
+  </div>
+
+  <div id="mapSurfaceButtons">
+    <input type="button" class="surfaceButton" value="Satellite Map" id="satelliteButton" onclick="satelliteMap()"><br>
+    <input type="button" class="surfaceButton" value="Street Map" id="streetButton" onclick="streetMap()"><br>
+  </div>
+
+
+  <div id="trackDataContainer" >
+    <input type="button" class="toggleButton" value="Get All Track Data" id="getdata" onclick="getTrackData()"><br>
+
+    <div id="trackdata"></div>
+  </div>
 
 </body>
 
 
 </html>
-
-
-© Copyright 2014-2018 Klokan Technologies GmbH
