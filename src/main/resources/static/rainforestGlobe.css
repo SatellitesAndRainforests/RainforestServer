@@ -1,0 +1,142 @@
+
+
+    html,
+    body {
+      padding: 0;
+      margin: 0;
+      background-color: black;
+      color: white;
+    }
+
+
+    #map {
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      background-color: #000;
+      position: absolute !important;
+    }
+
+
+    #getdata {
+
+      border: 1px solid #003f45;
+      border-radius: 5px;
+      background-color:transparent;
+
+    }
+
+
+    #trackDataContainer {
+
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 100000;
+      overflow-y: auto;
+
+    }
+
+
+    #trackdata {
+      text-align: left;
+      background-color: transparent;
+      color: powderblue;
+      border: 1px solid transparent;
+      outline: none;
+      margin: 1px;
+    }
+
+
+    #mapSurfaceButtons {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 100000 ;
+    }
+
+
+    .surfaceButton {
+
+      width: 100%;
+      background-color: transparent;
+      color: #003f45;
+      margin: 1px;
+      border: none;
+
+    }
+
+
+    .surfaceButton:disabled {
+      border: none;
+      border: 1px solid #003f45;
+      border-radius: 5px;
+      color: powderblue;
+    }
+
+
+    .surfaceButton:hover {
+      color: #028996;
+    }
+
+
+    #animationButtons {
+      position: absolute;
+      bottom: 15px;
+      left: 1px;
+      z-index: 100000;
+    }
+
+
+    .toggleButton {
+      text-align: left;
+      background-color: transparent;
+      color: powderblue;
+      border: 1px solid transparent;
+      outline: none;
+      margin: 1px;
+    }
+
+
+    .toggleButton:disabled {
+      color: #003f45;
+    }
+
+
+    .toggleButton:hover {
+      border: 1px solid #003f45;
+      border-radius: 5px;
+      color: #028996;
+
+    }
+
+
+    #zoomButtons {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      z-index: 100000;
+    }
+
+
+    .transparentButton {
+      color: white;
+      border: none;
+      background-color: transparent;
+      border: 1px solid transparent;
+      outline: none;
+    }
+
+
+    .transparentButton:hover {
+      border: 1px solid #003f45;
+      border-radius: 5px;
+    }
+
+
+    #animationButton {
+      border: 1px solid #003f45;
+      border-radius: 5px;
+    }
+

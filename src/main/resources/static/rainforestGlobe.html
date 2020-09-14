@@ -1,0 +1,40 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta name="Rainforest Data Visulization with WebGLEarth" content="index, all" />
+  <title>Rainforest Data Visulization with WebGLEarth</title>
+  <link rel="stylesheet" type="text/css" href="./rainforestGlobe.css" />
+  <script src="http://www.webglearth.com/v2/api.js"></script>
+  <script type="text/javascript" src="rainforestGlobe.js"></script>
+
+</head>
+
+<body onload="init()">
+
+  <div id="map"></div>
+
+  <div id="zoomButtons">
+    <input type="button" class="transparentButton" value="+" onclick="zoomInOne()"><br>
+    <input type="button" class="transparentButton" value="–" onclick="zoomOutOne()"><br>
+  </div>
+
+  <div id="animationButtons">
+    <input type="button" class="toggleButton" value="Pause Animation" id="animationButton" onclick="pauseAnimation()"><br>
+    <input type="button" class="toggleButton" value="Fly to The Hawaii" id="hawaiiButton" onclick="panTo([19.70, -155.55]);"><br>
+    <input type="button" class="toggleButton" value="Fly to the other side of the world" id="otherSideButton" onclick="flyToOtherSide()"><br>
+  </div>
+
+  <div id="mapSurfaceButtons">
+    <input type="button" class="surfaceButton" value="Satellite Map" id="satelliteButton" onclick="applySatelliteMap()"><br>
+    <input type="button" class="surfaceButton" value="OpenStreetMap" id="streetButton" onclick="applyStreetMap()"><br>
+  </div>
+
+  <div id="trackDataContainer" >
+    <input type="button" class="toggleButton" value="Get All Track Data" id="getdata" onclick="getTrackData()"><br>
+    <div id="trackdata"></div>
+  </div>
+
+</body>
+
+</html>
