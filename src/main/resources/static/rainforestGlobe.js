@@ -6,7 +6,8 @@
     var before = null;
     var dontAllowTimeElapse;
 
-    const URL = "http://localhost:8000/tracks";         //change url for internet
+   // const URL = "http://localhost:8000/tracks";         //change url for internet
+    const URL = "http://markstart.duckdns.org:8000/tracks";
 
 
 

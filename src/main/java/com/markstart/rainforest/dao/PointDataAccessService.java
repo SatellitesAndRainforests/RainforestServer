@@ -10,16 +10,15 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
 
+
 @Repository("postgres")
 public class PointDataAccessService implements PointDao {
-
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
     public PointDataAccessService(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
-
 
     @Override
     public List<Track> selectAllTracks() {
@@ -32,7 +31,6 @@ public class PointDataAccessService implements PointDao {
             return new Track(track_id, track_name, track_description);
         });
     }
-
 
     @Override
     public List<Point> selectAllPoints(UUID track_id) {
@@ -53,7 +51,6 @@ public class PointDataAccessService implements PointDao {
 
     }
 
-
     private float getPointHumidity(UUID point_id) {
         final String sql = "SELECT sensor_reading FROM point_sensor_readings WHERE point_id = '" + point_id + "' AND sensor_name LIKE 'Humidity'";
         return jdbcTemplate.queryForObject(sql, Float.class);
@@ -67,7 +64,6 @@ public class PointDataAccessService implements PointDao {
     private boolean trackInDB(UUID track_id) {
         final String sql = "SELECT EXISTS( SELECT 1 FROM tracks WHERE track_id = '" + track_id + "')";
         boolean exists = jdbcTemplate.queryForObject(sql, Boolean.class);
-        System.out.println(exists);
 
         return ( exists );
     }
@@ -123,6 +119,8 @@ public class PointDataAccessService implements PointDao {
         }
 
     }
+
+
 }
 
 
